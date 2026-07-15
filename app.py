@@ -5,6 +5,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 API_BASE_URL_DEFAULT = "http://localhost:8000"
+HEADERS = {"ngrok-skip-browser-warning": "true"}
 
 st.set_page_config(
     page_title="TimeGuard — Anomaly Detection",
@@ -59,7 +60,8 @@ with st.sidebar:
                         )
                     }
                     response = requests.post(
-                        f"{st.session_state.get('api_url', API_BASE_URL_DEFAULT)}/train", files=files, timeout=None
+                        f"{st.session_state.get('api_url', API_BASE_URL_DEFAULT)}/train",
+                        files=files, headers=HEADERS, timeout=None,
                     )
                     if response.status_code == 200:
                         st.session_state["train_result"] = response.json()
@@ -80,7 +82,8 @@ with st.sidebar:
                 if run_id_input.strip():
                     params["run_id"] = run_id_input.strip()
                 response = requests.post(
-                    f"{st.session_state.get('api_url', API_BASE_URL_DEFAULT)}/detect", params=params, timeout=None
+                    f"{st.session_state.get('api_url', API_BASE_URL_DEFAULT)}/detect",
+                    params=params, headers=HEADERS, timeout=None,
                 )
                 if response.status_code == 200:
                     st.session_state["detect_result"] = response.json()
@@ -384,7 +387,7 @@ with tab_explain:
                 response = requests.get(
                     f"{st.session_state.get('api_url', API_BASE_URL_DEFAULT)}/detect/explain",
                     params={"run_id": current_run_id},
-                    timeout=120,
+                    headers=HEADERS, timeout=120,
                 )
                 if response.status_code != 200:
                     detail = response.json().get("detail", "Unknown error!")
@@ -468,7 +471,7 @@ with tab_model:
                 response = requests.get(
                     f"{st.session_state.get('api_url', API_BASE_URL_DEFAULT)}/model/info",
                     params={"run_id": current_run_id},
-                    timeout=30,
+                    headers=HEADERS, timeout=30,
                 )
                 if response.status_code != 200:
                     detail = response.json().get("detail", "Unknown error")
